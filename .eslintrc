@@ -1,0 +1,35 @@
+{
+  "env": {
+    "node": true,
+    "es6": true,
+    "mocha": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "impliedStrict": true
+    }
+  },
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "parser": "flow",
+        "semi": false,
+        "printWidth": 120,
+        "useTabs": true
+      }
+    ],
+    "semi": [2, "never"],
+    "no-tabs": "off",
+    "quotes": [2, "single"],
+    "no-undef": "error",
+    "no-return-await": "error",
+    "strict": "error",
+    "no-var": "error",
+    "no-use-before-define": ["error", { "functions": false, "classes": false }]
+  }
+}

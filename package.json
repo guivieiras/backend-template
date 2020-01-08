@@ -1,0 +1,48 @@
+{
+  "name": "backend-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/Server.js",
+  "scripts": {
+    "start": "nodemon --inspect -r esm src/Server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.9.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "nodemon": "^2.0.2",
+    "prettier-eslint": "^9.0.1"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^6.4.0",
+    "apinotation": "^1.0.28",
+    "bcryptjs": "^2.4.3",
+    "chalk": "^3.0.0",
+    "colors": "^1.4.0",
+    "connect-mongo": "^3.2.0",
+    "cookie": "^0.4.0",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "express-session": "^1.17.0",
+    "express-socket.io-session": "^1.3.5",
+    "fs-extra": "^8.1.0",
+    "helmet": "^3.21.2",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.15",
+    "moment": "^2.24.0",
+    "mongoose": "^5.8.5",
+    "mongoose-unique-validator": "^2.0.3",
+    "morgan": "^1.9.1",
+    "path": "^0.12.7",
+    "socket.io": "^2.3.0",
+    "toml": "^3.0.0",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.1"
+  }
+}

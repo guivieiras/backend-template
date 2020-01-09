@@ -15,7 +15,7 @@ import apinotation from 'apinotation'
 import { ExceptionMiddleware } from './indexes/Middlewares'
 import session from 'express-session'
 import sessionMongo from 'connect-mongo'
-import { addColors } from 'winston'
+import { RateLimiterMongo } from 'rate-limiter-flexible'
 
 const { api, database, frontEnd, debug, auth } = process.myEnv
 
@@ -68,6 +68,19 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use('/public', express.static('public'))
+
+const rateLimiter = new RateLimiterMongo({
+	storeClient: mongoose.connection
+})
+
+app.use(async (req, res, next) => {
+	try {
+		await rateLimiter.consume(req.connection.remoteAddress)
+		next()
+	} catch (error) {
+		throw new Error('Too many requests')
+	}
+})
 
 routes(app)
 

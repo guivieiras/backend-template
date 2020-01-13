@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/Server.js",
+  "nodemonConfig": {
+    "ignore": [
+      "store"
+    ]
+  },
   "scripts": {
-    "start": "nodemon --inspect -r esm src/Server.js"
+    "start": "nodemon -r esm src/Server.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,7 +22,8 @@
   },
   "dependencies": {
     "@sendgrid/mail": "^6.4.0",
-    "apinotation": "^1.0.28",
+    "@sentry/node": "^5.11.0",
+    "apinotation": "^1.1.2",
     "bcryptjs": "^2.4.3",
     "chalk": "^3.0.0",
     "colors": "^1.4.0",
@@ -25,7 +31,6 @@
     "cookie": "^0.4.0",
     "cookie-parser": "^1.4.4",
     "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",
@@ -44,6 +49,7 @@
     "socket.io": "^2.3.0",
     "toml": "^3.0.0",
     "winston": "^3.2.1",
-    "winston-daily-rotate-file": "^4.4.1"
+    "winston-daily-rotate-file": "^4.4.1",
+    "winston-loggly-bulk": "^3.0.1"
   }
 }

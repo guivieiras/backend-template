@@ -1,9 +1,13 @@
 import { createLogger, format, transports } from 'winston'
-import chalk from 'chalk'
+import { Loggly } from 'winston-loggly-bulk'
 import 'winston-daily-rotate-file'
 import 'colors'
+import chalk from 'chalk'
 import fs from 'fs-extra'
 import os from 'os'
+import * as Sentry from '@sentry/node'
+
+const { debug, loggly, sentry } = process.myEnv
 
 const { combine, timestamp, printf } = format
 
@@ -28,35 +32,46 @@ function getColorized(level) {
 	}
 }
 
-function handlePrintf({ level, message, timestamp, transport, colorize }) {
-	if (process.myEnv && process.myEnv.debug && JSON.parse(process.myEnv.debug) === true) {
-		if (message.exception) {
-			let exception = message.exception
+const handlePrintf = format((info, opts) => {
+	let { level, message, timestamp, stack } = info
+	let { transport, colorize } = opts
 
-			if (transport === 'console') {
-				console.error(exception)
-				message = exception.toString()
-			} else {
-				try {
-					message = exception.stack + '\n' + JSON.stringify({ [exception.name]: exception }, null, 2)
-				} catch (error) {
-					message = exception.stack + '\n' + 'could not stringify exception'
-				}
+	if (stack) {
+		message = stack
+
+		if (debug) {
+			try {
+				delete info.stack
+				delete info.timestamp
+				delete info.level
+				message += '\n' + JSON.stringify(info, null, 2)
+			} catch (error) {
+				//Ignore
 			}
 		}
-	} else {
-		if (message.exception) {
-			message = message.exception.stack
-		}
 	}
-
 	if (colorize) {
-		return `${timestamp.blue.bold} ${getColorized(level)}: ${message}`
+		info.message = `${timestamp.blue.bold} ${getColorized(level)}: ${message}`
 	} else {
-		let result = `${timestamp} ${level.toUpperCase()}: ${message}`
-
-		return result.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '')
+		info.message = `${timestamp} ${level.toUpperCase()}: ${message}`
 	}
+	return info
+})
+Sentry.init({ dsn: sentry.dsn })
+
+const serializeError = format((info, opts) => {
+	if (info instanceof Error) {
+		Sentry.captureException(info)
+		info = { ...info, stack: info.stack }
+	}
+	return info
+})
+
+function getFormat(options) {
+	return combine(
+		handlePrintf(options),
+		printf(i => i.message)
+	)
 }
 
 const fileConfig = {
@@ -66,25 +81,29 @@ const fileConfig = {
 	maxFiles: '14d'
 }
 
-let x = transports
-
 export const logger = createLogger({
 	level: 'info',
 	exitOnError: false,
-	format: combine(timestamp()),
+	format: combine(timestamp(), serializeError()),
 	transports: [
-		new x.DailyRotateFile({
+		new transports.DailyRotateFile({
 			...fileConfig,
 			filename: logFolder + '/app-%DATE%.log',
-			format: printf(all => handlePrintf({ ...all, ...{ colorize: false, transport: 'file' } }))
+			format: getFormat({ colorize: false, transport: 'file' })
 		}),
-		new x.DailyRotateFile({
+		new transports.DailyRotateFile({
 			...fileConfig,
 			filename: logFolder + '/app-colorized-%DATE%.log',
-			format: printf(all => handlePrintf({ ...all, ...{ colorize: true, transport: 'file' } }))
+			format: getFormat({ colorize: true, transport: 'file' })
 		}),
 		new transports.Console({
-			format: printf(all => handlePrintf({ ...all, ...{ colorize: true, transport: 'console' } }))
+			format: getFormat({ colorize: true, transport: 'console' })
+		}),
+		new transports.Loggly({
+			subdomain: loggly.subdomain,
+			token: loggly.token,
+			tags: ['Backend-Template'],
+			json: true
 		})
 	]
 })

@@ -1,7 +1,9 @@
 import { Router } from 'express'
 
+/** @Group Auth */
 const router = Router()
 
+/** @Route GET /auth Load login form */
 router.get('/', (req, res, next) => {
 	res.send(`
   <html>

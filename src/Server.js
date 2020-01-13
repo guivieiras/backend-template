@@ -95,4 +95,4 @@ serverImpl.listen(api.port || 3000, '0.0.0.0', () => {
 
 fs.emptyDirSync('store/temp')
 
-// app.use('/doc', express.static(apinotation('./src', {}, 'store/temp/apinotation')))
+app.use('/doc', express.static(apinotation('./src', {}, 'store/temp/apinotation')))
